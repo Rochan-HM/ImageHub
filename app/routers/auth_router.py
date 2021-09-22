@@ -22,7 +22,7 @@ async def signin(user: UserInput):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    with open("./app/store/users.json", "r") as f:
+    with open(os.path.join(os.getcwd(), "app", "store", "users.json"), "r") as f:
         users = json.load(f)
 
     users[user.username] = {
@@ -33,7 +33,7 @@ async def signin(user: UserInput):
         "hashed_password": get_password_hash(user.password),
     }
 
-    with open("./app/store/users.json", "w") as f:
+    with open(os.path.join(os.getcwd(), "app", "store", "users.json"), "w") as f:
         json.dump(users, f)
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -68,12 +68,12 @@ async def get_logged_in_user(current_user: User = Depends(get_current_active_use
 async def update_user_status(
     update: UserUpdate, current_user: User = Depends(get_current_user)
 ):
-    with open("./app/store/users.json", "r") as f:
+    with open(os.path.join(os.getcwd(), "app", "store", "users.json"), "r") as f:
         users = json.load(f)
 
     users[current_user.username]["disabled"] = update.disable
 
-    with open("./app/store/users.json", "w") as f:
+    with open(os.path.join(os.getcwd(), "app", "store", "users.json"), "w") as f:
         json.dump(users, f)
 
     return {"Operation": "Success"}

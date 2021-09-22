@@ -22,9 +22,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 SECRET_KEY = os.environ["SECRET_KEY"]
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ["ACCESS_TOKEN_EXPIRE_MINUTES"])
 
-os.makedirs(os.path.dirname("./app/store/"), exist_ok=True)
-if not os.path.exists("./app/store/users.json"):
-    with open("./app/store/users.json", "w") as f:
+
+os.makedirs(os.path.join(os.getcwd(), "app", "store"), exist_ok=True)
+if not os.path.exists(os.path.join(os.getcwd(), "app", "store", "users.json")):
+    with open(os.path.join(os.getcwd(), "app", "store", "users.json"), "w") as f:
         json.dump({}, f)
 
 
@@ -37,7 +38,7 @@ def get_password_hash(password):
 
 
 def get_user(username: str):
-    with open("./app/store/users.json", "r") as f:
+    with open(os.path.join(os.getcwd(), "app", "store", "users.json"), "r") as f:
         users = json.load(f)
 
     if username in users:

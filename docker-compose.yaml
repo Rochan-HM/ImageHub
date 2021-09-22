@@ -1,0 +1,21 @@
+version: "3.5"
+services:
+    app:
+        build: .
+        ports:
+            - 3000:3000
+        volumes:
+            - imagehubstore:/usr/src/app/app/store
+        environment:
+            - MAX_WORKERS=1
+
+    tests:
+        build: .
+        environment:
+            - MAX_WORKERS=1
+        command: python -m pytest
+        profiles:
+            - donotstart
+
+volumes:
+    imagehubstore:

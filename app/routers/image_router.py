@@ -23,19 +23,27 @@ router = APIRouter()
 
 @router.on_event("startup")
 async def setup():
-    os.makedirs(os.path.dirname("./app/store/image/"), exist_ok=True)
-    os.makedirs(os.path.dirname("./app/store/data/"), exist_ok=True)
+    os.makedirs(os.path.join(os.getcwd(), "app", "store", "image"), exist_ok=True)
+    os.makedirs(os.path.join(os.getcwd(), "app", "store", "data"), exist_ok=True)
 
 
 @router.get("/images", tags=["Get Images"])
 async def get_all_images(current_user: User = Depends(get_current_active_user)):
     ans = []
-    for res in glob.iglob("./app/store/data/*.json"):
+    for res in glob.iglob(os.path.join(os.getcwd(), "app", "store", "data", "*.json")):
         with open(res, "r") as f:
             data = json.load(f)
 
         if data["author"] == current_user.username:
-            ans.append(f"./app/store/image/{pathlib.Path(res).stem}.jpg")
+            ans.append(
+                os.path.join(
+                    os.getcwd(),
+                    "app",
+                    "store",
+                    "image",
+                    f"{pathlib.Path(res).stem}.jpg",
+                )
+            )
 
     zip_io = io.BytesIO()
     with zipfile.ZipFile(
@@ -55,12 +63,16 @@ async def get_all_images(current_user: User = Depends(get_current_active_user)):
 async def get_single_images(
     id: str, current_user: User = Depends(get_current_active_user)
 ):
-    if not os.path.exists(f"./app/store/image/{id}.jpg"):
+    if not os.path.exists(
+        os.path.join(os.getcwd(), "app", "store", "image", f"{id}.jpg")
+    ):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
         )
 
-    with open(f"./app/store/data/{id}.json", "r") as f:
+    with open(
+        os.path.join(os.getcwd(), "app", "store", "data", f"{id}.json"), "r"
+    ) as f:
         data = json.load(f)
         if data["author"] != current_user.username:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
@@ -76,19 +88,28 @@ async def upload_many(
     # Since we do not have a database, we just store in file system.
     # However, it would be better to store this in a database for latency and organization.
     try:
+        ids = []
         for file in files:
 
             file_name = str(uuid.uuid4())
 
-            with open(f"./app/store/image/{file_name}.jpg", "wb") as buf:
+            with open(
+                os.path.join(os.getcwd(), "app", "store", "image", f"{file_name}.jpg"),
+                "wb",
+            ) as buf:
                 shutil.copyfileobj(file.file, buf)
 
-            with open(f"./app/store/data/{file_name}.json", "w") as f:
+            with open(
+                os.path.join(os.getcwd(), "app", "store", "data", f"{file_name}.json"),
+                "w",
+            ) as f:
                 json.dump(
                     {"filename": file.filename, "author": current_user.username}, f
                 )
 
-        return {"Status": "OK", "id": file_name}
+            ids.append(file_name)
+
+        return {"Status": "OK", "id": ids}
 
     except Exception as e:
         print(e)
@@ -105,10 +126,14 @@ async def upload_one(
     try:
         file_name = str(uuid.uuid4())
 
-        with open(f"./app/store/image/{file_name}.jpg", "wb") as buf:
+        with open(
+            os.path.join(os.getcwd(), "app", "store", "image", f"{file_name}.jpg"), "wb"
+        ) as buf:
             shutil.copyfileobj(file.file, buf)
 
-        with open(f"./app/store/data/{file_name}.json", "w") as f:
+        with open(
+            os.path.join(os.getcwd(), "app", "store", "data", f"{file_name}.json"), "w"
+        ) as f:
             json.dump({"filename": file.filename, "author": current_user.username}, f)
 
         return {"Status": "OK", "id": file_name}
