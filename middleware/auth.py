@@ -22,6 +22,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 SECRET_KEY = os.environ["SECRET_KEY"]
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ["ACCESS_TOKEN_EXPIRE_MINUTES"])
 
+os.makedirs(os.path.dirname("./store/"), exist_ok=True)
 if not os.path.exists("./store/users.json"):
     with open("./store/users.json", "w") as f:
         json.dump({}, f)
