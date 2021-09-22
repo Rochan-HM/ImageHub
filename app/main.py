@@ -2,8 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 from dotenv import load_dotenv
 
-from routers.image_router import router as image_router
-from routers.auth_router import router as auth_router
+from app.routers.image_router import router as image_router
+from app.routers.auth_router import router as auth_router
 
 load_dotenv()
 
@@ -15,7 +15,3 @@ app.include_router(auth_router)
 @app.get("/", tags=["Index"])
 async def root():
     return {"Status": "OK"}
-
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=3000)

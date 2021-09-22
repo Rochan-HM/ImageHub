@@ -1,5 +1,10 @@
+from logging import disable
 from pydantic import BaseModel
 from typing import Optional
+
+
+class UserUpdate(BaseModel):
+    disable: bool = False
 
 
 class UserInput(BaseModel):
